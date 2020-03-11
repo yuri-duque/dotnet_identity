@@ -16,10 +16,17 @@ namespace IdentityForum
         {
             builder.CreatePerOwinContext<DbContext>(() => new IdentityDbContext<Usuario>("defaultConnection"));
 
-            builder.CreatePerOwinContext<IUserStore<Usuario>>((opcoes, contextOwin) =>
+            builder.CreatePerOwinContext<UserManager<Usuario>>((opcoes, contextOwin) =>
             {
-                var dbContex = contextOwin.Get<DbContext>();
-                return new UserStore<Usuario>(dbContex);
+                var userStore = contextOwin.Get<IUserStore<Usuario>>();
+                var userManager = new UserManager<Usuario>(userStore);
+
+                var userValidator = new UserValidator<Usuario>(userManager);
+                userValidator.RequireUniqueEmail = true;
+
+                userManager.UserValidator = userValidator;
+
+                return userManager;
             });
         }
     }

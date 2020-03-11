@@ -3,6 +3,7 @@ using IdentityForum.ViewModels;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
+using System;
 using System.Data.Entity.Migrations;
 using System.Threading.Tasks;
 using System.Web;
@@ -45,14 +46,27 @@ namespace IdentityForum.Controllers
                 novoUsuario.UserName = modelo.Username;
                 novoUsuario.NomeCompleto = modelo.NomeCompleto;
 
-                await UserManager.CreateAsync(novoUsuario, modelo.Senha);
+                var resultado = await UserManager.CreateAsync(novoUsuario, modelo.Senha);
 
-                //Podemos incluir o usuário
-                return RedirectToAction("Index", "Home");
+                if (resultado.Succeeded)
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+                else
+                {
+                    AdicionaErros(resultado);
+                }                
             }
 
-            //Alguma coisa aconteceu
             return View(modelo);
+        }
+
+        private void AdicionaErros(IdentityResult resultado)
+        {
+            foreach (var erro in resultado.Errors)
+            {
+                ModelState.AddModelError("", erro);
+            }
         }
     }
 }

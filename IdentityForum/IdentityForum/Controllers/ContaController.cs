@@ -87,8 +87,18 @@ namespace IdentityForum.Controllers
                 );
         }
 
-        public ActionResult ConfirmacaoEmail(string usuarioId, string token)
+        public async Task<ActionResult> ConfirmacaoEmail(string usuarioId, string token)
         {
+            if (string.IsNullOrEmpty(usuarioId) || string.IsNullOrEmpty(token))
+                return View("Error");
+
+            var resultado = await UserManager.ConfirmEmailAsync(usuarioId, token);
+
+            if (resultado.Succeeded)
+                return RedirectToAction("Index", "Home");
+            else
+                return View("Error");
+
             throw new NotImplementedException();
         }
 

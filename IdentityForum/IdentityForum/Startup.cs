@@ -42,7 +42,7 @@ namespace IdentityForum
                         ObrigatorioUpperCase = true
                     };
 
-                    userManager.EmailService = new EmailServico();
+                    userManager.EmailService = new EmailService();
 
                     return userManager;
                 });

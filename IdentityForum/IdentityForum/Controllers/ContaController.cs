@@ -47,7 +47,7 @@ namespace IdentityForum.Controllers
                 novoUsuario.UserName = modelo.Username;
                 novoUsuario.NomeCompleto = modelo.NomeCompleto;
 
-                var usuario = UserManager.FindByEmail(modelo.Email);
+                var usuario = await UserManager.FindByEmailAsync(modelo.Email);
                 var usuarioJaExiste = usuario != null;
 
                 if (usuarioJaExiste)

@@ -51,13 +51,14 @@ namespace IdentityForum.Controllers
                 var usuarioJaExiste = usuario != null;
 
                 if (usuarioJaExiste)
-                    return RedirectToAction("Index", "Home");
+                    return View("AguardandoConfirmacao");
 
                 var resultado = await UserManager.CreateAsync(novoUsuario, modelo.Senha);
 
                 if (resultado.Succeeded)
                 {
-                    return RedirectToAction("Index", "Home");
+                    await EnviarEmailDeConfirmacaoAsync(novoUsuario);
+                    return View("AguardandoConfirmacao");
                 }
                 else
                 {
@@ -66,6 +67,29 @@ namespace IdentityForum.Controllers
             }
 
             return View(modelo);
+        }
+
+        public async Task EnviarEmailDeConfirmacaoAsync(Usuario usuario)
+        {
+            var token = await UserManager.GenerateEmailConfirmationTokenAsync(usuario.Id);
+
+            var linkDeCallBack = Url.Action(
+                "ConfirmacaoEmail",
+                "Conta",
+                new { usuarioId = usuario.Id, token },
+                Request.Url.Scheme
+                );
+
+            await UserManager.SendEmailAsync(
+                usuario.Id,
+                "Fórum Identity - Confirmação de Email",
+                $"Bem vindo ao fórum Identity, clique aqui {linkDeCallBack} para confirmar seu endereço de email!"
+                );
+        }
+
+        public ActionResult ConfirmacaoEmail(string usuarioId, string token)
+        {
+            throw new NotImplementedException();
         }
 
         private void AdicionaErros(IdentityResult resultado)

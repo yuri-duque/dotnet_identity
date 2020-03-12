@@ -44,6 +44,9 @@ namespace IdentityForum
 
                     userManager.EmailService = new EmailService();
 
+                    var dataProtectionProviderCreated = opcoes.DataProtectionProvider.Create("ForumIdentity");
+                    userManager.UserTokenProvider = new DataProtectorTokenProvider<Usuario>(dataProtectionProviderCreated);
+
                     return userManager;
                 });
         }

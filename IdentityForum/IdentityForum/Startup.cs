@@ -42,6 +42,8 @@ namespace IdentityForum
                         ObrigatorioUpperCase = true
                     };
 
+                    userManager.EmailService = new EmailServico();
+
                     return userManager;
                 });
         }

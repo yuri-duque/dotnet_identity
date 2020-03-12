@@ -8,6 +8,6 @@ namespace IdentityForum.Models
 {
     public class Usuario : IdentityUser
     {
-        public string NomeCompleto;
+        public string NomeCompleto { get; set; }
     }
 }

@@ -5,7 +5,7 @@ using Microsoft.Owin;
 using Microsoft.AspNet.Identity.Owin;
 using Owin;
 using System.Data.Entity;
-
+using IdentityForum.App_Start.Identity;
 
 [assembly: OwinStartup(typeof(IdentityForum.Startup))]
 namespace IdentityForum
@@ -14,20 +14,36 @@ namespace IdentityForum
     {
         public void Configuration(IAppBuilder builder)
         {
-            builder.CreatePerOwinContext<DbContext>(() => new IdentityDbContext<Usuario>("defaultConnection"));
+            builder.CreatePerOwinContext<DbContext>(() => new IdentityDbContext<Usuario>("DefaultConnection")); //Pega a connection string
 
-            builder.CreatePerOwinContext<UserManager<Usuario>>((opcoes, contextOwin) =>
-            {
-                var userStore = contextOwin.Get<IUserStore<Usuario>>();
-                var userManager = new UserManager<Usuario>(userStore);
+            builder.CreatePerOwinContext<IUserStore<Usuario>>(
+                (opcoes, contextoOwin) =>
+                {
+                    var dbContext = contextoOwin.Get<DbContext>(); // inicializa o dbContext
+                    return new UserStore<Usuario>(dbContext);
+                });
 
-                var userValidator = new UserValidator<Usuario>(userManager);
-                userValidator.RequireUniqueEmail = true;
+            builder.CreatePerOwinContext<UserManager<Usuario>>(
+                (opcoes, contextoOwin) =>
+                {
+                    var userStore = contextoOwin.Get<IUserStore<Usuario>>(); // pega a store
+                    var userManager = new UserManager<Usuario>(userStore); // pega o manager
 
-                userManager.UserValidator = userValidator;
+                    var userValidator = new UserValidator<Usuario>(userManager);
+                    userValidator.RequireUniqueEmail = true; 
 
-                return userManager;
-            });
+                    userManager.UserValidator = userValidator;
+                    userManager.PasswordValidator = new SenhaValidador()
+                    {
+                        TamanhoRequerido = 6,
+                        ObrigatorioCaracteresEspeciais = true,
+                        ObrigatorioDigitos = true,
+                        ObrigatorioLowerCase = true,
+                        ObrigatorioUpperCase = true
+                    };
+
+                    return userManager;
+                });
         }
     }
 }

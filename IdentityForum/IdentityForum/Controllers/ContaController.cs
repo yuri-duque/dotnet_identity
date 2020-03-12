@@ -42,9 +42,16 @@ namespace IdentityForum.Controllers
             if (ModelState.IsValid)
             {
                 var novoUsuario = new Usuario();
+
                 novoUsuario.Email = modelo.Email;
                 novoUsuario.UserName = modelo.Username;
                 novoUsuario.NomeCompleto = modelo.NomeCompleto;
+
+                var usuario = UserManager.FindByEmail(modelo.Email);
+                var usuarioJaExiste = usuario != null;
+
+                if (usuarioJaExiste)
+                    return RedirectToAction("Index", "Home");
 
                 var resultado = await UserManager.CreateAsync(novoUsuario, modelo.Senha);
 
@@ -55,7 +62,7 @@ namespace IdentityForum.Controllers
                 else
                 {
                     AdicionaErros(resultado);
-                }                
+                }
             }
 
             return View(modelo);
